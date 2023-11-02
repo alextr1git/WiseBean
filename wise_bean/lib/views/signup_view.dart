@@ -1,16 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:wise_bean/firebase_options.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class SignUpView extends StatefulWidget {
+  const SignUpView({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<SignUpView> createState() => _SignUpViewState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignUpViewState extends State<SignUpView> {
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
 
@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        title: const Text('Login page'),
+        title: const Text('Sign up page'),
       ),
       backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       body: FutureBuilder(
@@ -52,12 +52,12 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     const SizedBox(height: 30),
                     Text(
-                      "Welcome here!",
+                      "We've never met before!",
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      "Login to your account",
+                      "Create your account!",
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 30),
@@ -117,13 +117,25 @@ class _LoginPageState extends State<LoginPage> {
                           onPressed: () async {
                             final email = _emailController.text;
                             final password = _passwordController.text;
-
-                            final userCredential = await FirebaseAuth.instance
-                                .createUserWithEmailAndPassword(
-                                    email: email, password: password);
-                            print(userCredential);
+                            try {
+                              final userCredential = await FirebaseAuth.instance
+                                  .createUserWithEmailAndPassword(
+                                      email: email, password: password);
+                              print(userCredential);
+                            } on FirebaseAuthException catch (e) {
+                              if (e.code == 'weak-password') {
+                                print("Password is weak!");
+                              } else if (e.code == 'email-already-in-use') {
+                                print('Email is already in use!');
+                              }
+                              else if (e.code == 'invalid-email'){
+                                  print('Email is invalid!');
+                              }
+                            } catch (e) {
+                              print("Something unhandled happened :(");
+                            }
                           },
-                          child: const Text('Login'),
+                          child: const Text('Sign up'),
                         ),
                       ],
                     ),
@@ -133,12 +145,12 @@ class _LoginPageState extends State<LoginPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Don't have an account?"),
+                        const Text("Already have an account?"),
                         TextButton(
                           onPressed: () {
-                            Navigator.of(context).pushNamed('/signUp');
+                            Navigator.of(context).pushNamed('/login');
                           },
-                          child: const Text("Create one!"),
+                          child: const Text("Login into existing one"),
                         ),
                       ],
                     )
@@ -146,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               );
             default:
-              return const Text('Loading...');
+              return const CircularProgressIndicator();
           }
         },
       ),
