@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:wise_bean/firebase_options.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -103,7 +106,15 @@ class _LoginPageState extends State<LoginPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       )),
-                  onPressed: () {},
+                  onPressed: () async {
+                    final email = _emailController.text;
+                    final password = _passwordController.text;
+                    await Firebase.initializeApp(
+                      options: DefaultFirebaseOptions.currentPlatform,
+                    );
+                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                        email: email, password: password);
+                  },
                   child: const Text('Login'),
                 ),
               ],
