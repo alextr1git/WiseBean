@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:wise_bean/constants/routes.dart';
+import 'dart:developer' as devtools show log;
+
+import 'package:wise_bean/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -107,18 +111,29 @@ class _LoginViewState extends State<LoginView> {
                     final email = _emailController.text;
                     final password = _passwordController.text;
                     try {
-                      final userCredential = await FirebaseAuth.instance
-                          .signInWithEmailAndPassword(
-                              email: email, password: password);
-                      print(userCredential);
+                      await FirebaseAuth.instance.signInWithEmailAndPassword(
+                          email: email, password: password);
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        reviewsRoute,
+                        (route) => false,
+                      );
                     } on FirebaseAuthException catch (e) {
-                      if (e.code == 'user-not-found') {
-                        print("User not found!");
-                      } else if (e.code == 'wrong-password') {
-                        print("Wrong password!");
+                      if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
+                        showErrorDialog(
+                          context,
+                          "Wrong password or email.",
+                        );
+                      } else {
+                        showErrorDialog(
+                          context,
+                          "Something went wrong :(",
+                        );
                       }
                     } catch (e) {
-                      print("Something went wrong");
+                      showErrorDialog(
+                        context,
+                        "Something went completely wrong :(",
+                      );
                     }
                   },
                   child: const Text('Login'),
@@ -135,7 +150,7 @@ class _LoginViewState extends State<LoginView> {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context)
-                        .pushNamedAndRemoveUntil('/signUp', (route) => false);
+                        .pushNamedAndRemoveUntil(signUpRoute, (route) => false);
                   },
                   child: const Text("Create one!"),
                 ),
