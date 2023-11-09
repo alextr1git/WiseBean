@@ -7,7 +7,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MaterialApp(
     title: 'Wise Bean',
-    initialRoute: '/login',
+    initialRoute: '/',
     routes: {
       '/': (context) => const HomePage(),
       '/login': (context) => const LoginView(),
