@@ -123,6 +123,11 @@ class _LoginViewState extends State<LoginView> {
                           context,
                           "Wrong password or email.",
                         );
+                      } else if (e.code == 'network-request-failed') {
+                        await showErrorDialog(
+                          context,
+                          "No internet connection!",
+                        );
                       } else {
                         showErrorDialog(
                           context,

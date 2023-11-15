@@ -3,7 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:wise_bean/constants/routes.dart';
 import 'package:wise_bean/firebase_options.dart';
-import 'dart:developer' as devtools show log;
+
+import 'package:wise_bean/utilities/show_error_dialog.dart';
 
 class SignUpView extends StatefulWidget {
   const SignUpView({super.key});
@@ -109,20 +110,44 @@ class _SignUpViewState extends State<SignUpView> {
                     final email = _emailController.text;
                     final password = _passwordController.text;
                     try {
-                      final userCredential = await FirebaseAuth.instance
+                      await FirebaseAuth.instance
                           .createUserWithEmailAndPassword(
                               email: email, password: password);
-                      devtools.log(userCredential.toString());
+                      final user = FirebaseAuth.instance.currentUser;
+                      await user?.sendEmailVerification();
+                      Navigator.of(context).pushNamed(verifyEmailRoute);
                     } on FirebaseAuthException catch (e) {
                       if (e.code == 'weak-password') {
-                        devtools.log("Password is weak!");
+                        await showErrorDialog(
+                          context,
+                          "Your password is too weak!",
+                        );
                       } else if (e.code == 'email-already-in-use') {
-                        devtools.log('Email is already in use!');
+                        await showErrorDialog(
+                          context,
+                          "This email is already taken!",
+                        );
                       } else if (e.code == 'invalid-email') {
-                        devtools.log('Email is invalid!');
+                        await showErrorDialog(
+                          context,
+                          "Invalid email!",
+                        );
+                      } else if (e.code == 'network-request-failed') {
+                        await showErrorDialog(
+                          context,
+                          "No internet connection!",
+                        );
+                      } else {
+                        await showErrorDialog(
+                          context,
+                          "Something went wrong. Code: ${e.code}",
+                        );
                       }
                     } catch (e) {
-                      devtools.log("Something unhandled happened :(");
+                      await showErrorDialog(
+                        context,
+                        "Something went completely wrong! Try again!",
+                      );
                     }
                   },
                   child: const Text('Sign up'),

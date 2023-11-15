@@ -4,6 +4,7 @@ import 'package:wise_bean/views/reviews_view.dart';
 import 'package:wise_bean/views/signup_view.dart';
 import 'package:wise_bean/views/home_page.dart';
 import 'package:wise_bean/views/login_view.dart';
+import 'package:wise_bean/views/verify_email_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,7 @@ void main() {
       loginRoute: (context) => const LoginView(),
       signUpRoute: (context) => const SignUpView(),
       reviewsRoute: (context) => const ReviewsView(),
+      verifyEmailRoute: (context) => const VerifyEmailView(),
     },
     theme: ThemeData(
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
