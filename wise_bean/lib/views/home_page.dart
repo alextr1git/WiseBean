@@ -1,7 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:wise_bean/firebase_options.dart';
+import 'package:wise_bean/services/auth/auth_service.dart';
 import 'package:wise_bean/views/login_view.dart';
 import 'package:wise_bean/views/reviews_view.dart';
 import 'package:wise_bean/views/verify_email_view.dart';
@@ -17,15 +15,13 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      ),
+      future: AuthService.firebase().initialize(),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
-            final user = FirebaseAuth.instance.currentUser;
+            final user = AuthService.firebase().currentUser;
             if (user != null) {
-              if (user.emailVerified) {
+              if (user.isEmailVerified) {
                 return const ReviewsView();
               } else {
                 return const VerifyEmailView();
@@ -40,5 +36,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-

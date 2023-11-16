@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wise_bean/constants/routes.dart';
-import 'dart:developer' as devtools show log;
-
+import 'package:wise_bean/services/auth/auth_exceptions.dart';
+import 'package:wise_bean/services/auth/auth_service.dart';
 import 'package:wise_bean/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -111,10 +110,13 @@ class _LoginViewState extends State<LoginView> {
                     final email = _emailController.text;
                     final password = _passwordController.text;
                     try {
-                      await FirebaseAuth.instance.signInWithEmailAndPassword(
-                          email: email, password: password);
-                      final user = FirebaseAuth.instance.currentUser;
-                      if (user?.emailVerified ?? false) {
+                      await AuthService.firebase().logInUser(
+                        id: email,
+                        password: password,
+                      );
+
+                      final user = AuthService.firebase().currentUser;
+                      if (user?.isEmailVerified ?? false) {
                         Navigator.of(context).pushNamedAndRemoveUntil(
                           reviewsRoute,
                           (route) => false,
@@ -125,27 +127,20 @@ class _LoginViewState extends State<LoginView> {
                           (route) => false,
                         );
                       }
-                    } on FirebaseAuthException catch (e) {
-                      if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
-                        showErrorDialog(
-                          context,
-                          "Wrong password or email.",
-                        );
-                      } else if (e.code == 'network-request-failed') {
-                        await showErrorDialog(
-                          context,
-                          "No internet connection!",
-                        );
-                      } else {
-                        showErrorDialog(
-                          context,
-                          "Something went wrong :(",
-                        );
-                      }
-                    } catch (e) {
+                    } on InvalidCredentialsAuthException {
                       showErrorDialog(
                         context,
-                        "Something went completely wrong :(",
+                        "Wrong password or email.",
+                      );
+                    } on NetworkRequestFailedAuthException {
+                      await showErrorDialog(
+                        context,
+                        "No internet connection!",
+                      );
+                    } on GenericAuthException {
+                      showErrorDialog(
+                        context,
+                        "Something went wrong :(",
                       );
                     }
                   },

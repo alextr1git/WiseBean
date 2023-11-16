@@ -1,9 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:wise_bean/constants/routes.dart';
-import 'package:wise_bean/firebase_options.dart';
-
+import 'package:wise_bean/services/auth/auth_exceptions.dart';
+import 'package:wise_bean/services/auth/auth_service.dart';
 import 'package:wise_bean/utilities/show_error_dialog.dart';
 
 class SignUpView extends StatefulWidget {
@@ -110,43 +108,37 @@ class _SignUpViewState extends State<SignUpView> {
                     final email = _emailController.text;
                     final password = _passwordController.text;
                     try {
-                      await FirebaseAuth.instance
-                          .createUserWithEmailAndPassword(
-                              email: email, password: password);
-                      final user = FirebaseAuth.instance.currentUser;
-                      await user?.sendEmailVerification();
+                      await AuthService.firebase().createUser(
+                        id: email,
+                        password: password,
+                      );
+
+                      AuthService.firebase().sendVerification();
                       Navigator.of(context).pushNamed(verifyEmailRoute);
-                    } on FirebaseAuthException catch (e) {
-                      if (e.code == 'weak-password') {
-                        await showErrorDialog(
-                          context,
-                          "Your password is too weak!",
-                        );
-                      } else if (e.code == 'email-already-in-use') {
-                        await showErrorDialog(
-                          context,
-                          "This email is already taken!",
-                        );
-                      } else if (e.code == 'invalid-email') {
-                        await showErrorDialog(
-                          context,
-                          "Invalid email!",
-                        );
-                      } else if (e.code == 'network-request-failed') {
-                        await showErrorDialog(
-                          context,
-                          "No internet connection!",
-                        );
-                      } else {
-                        await showErrorDialog(
-                          context,
-                          "Something went wrong. Code: ${e.code}",
-                        );
-                      }
-                    } catch (e) {
+                    } on WeakPasswordAuthException {
                       await showErrorDialog(
                         context,
-                        "Something went completely wrong! Try again!",
+                        "Your password is too weak!",
+                      );
+                    } on EmailAlreadyInUseAuthException {
+                      await showErrorDialog(
+                        context,
+                        "This email is already taken!",
+                      );
+                    } on NetworkRequestFailedAuthException {
+                      await showErrorDialog(
+                        context,
+                        "No internet connection!",
+                      );
+                    } on InvalidEmailAuthException {
+                      await showErrorDialog(
+                        context,
+                        "Invalid email!",
+                      );
+                    } on GenericAuthException {
+                      await showErrorDialog(
+                        context,
+                        "Something went wrong.",
                       );
                     }
                   },

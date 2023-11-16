@@ -1,6 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:wise_bean/constants/routes.dart';
+import 'package:wise_bean/enums/menu_action.dart';
+import 'package:wise_bean/services/auth/auth_service.dart';
 
 class ReviewsView extends StatefulWidget {
   const ReviewsView({super.key});
@@ -8,8 +9,6 @@ class ReviewsView extends StatefulWidget {
   @override
   State<ReviewsView> createState() => _ReviewsViewState();
 }
-
-enum MenuAction { logout }
 
 class _ReviewsViewState extends State<ReviewsView> {
   @override
@@ -23,7 +22,7 @@ class _ReviewsViewState extends State<ReviewsView> {
               case MenuAction.logout:
                 final shouldLogout = await showLogOutDialog(context);
                 if (shouldLogout) {
-                  await FirebaseAuth.instance.signOut();
+                  await AuthService.firebase().logOutUser();
                   Navigator.of(context).pushNamedAndRemoveUntil(
                     loginRoute,
                     (_) => false,
