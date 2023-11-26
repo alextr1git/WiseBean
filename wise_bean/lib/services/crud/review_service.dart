@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
@@ -40,6 +42,30 @@ const createReviewTable = '''
 
 class ReviewsService {
   Database? _db;
+
+  List<DatabaseReview> _reviews = [];
+
+  final _reviewsStreamController =
+      StreamController<List<DatabaseReview>>.broadcast();
+
+  Future<DatabaseUser> getOrCreateUser({required String email}) async {
+    try {
+      final user = await getUser(email: email);
+      return user;
+    } on CouldNotFindUser {
+      final createdUser = await createUser(email: email);
+      return createdUser;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> _cacheReviews() async {
+    final allReviews = await getAllReviews();
+    _reviews = allReviews.toList();
+    _reviewsStreamController.add(_reviews);
+  }
+
   Future<DatabaseReview> updateReview({
     required DatabaseReview review,
     required String remarks,
@@ -50,7 +76,7 @@ class ReviewsService {
   }) async {
     final db = _getDatabaseOrThrow();
     await getReview(id: review.id);
-
+    //update db
     final updatesCount = await db.update(reviewTable, {
       remarksColumn: remarks,
       balanceColumn: balance,
@@ -62,7 +88,11 @@ class ReviewsService {
     if (updatesCount == 0) {
       throw CouldNotUpdateReview();
     } else {
-      return await getReview(id: review.id);
+      final updatedReview = await getReview(id: review.id);
+      _reviews.removeWhere((review) => review.id == updatedReview);
+      _reviews.add(updatedReview);
+      _reviewsStreamController.add(_reviews);
+      return updatedReview;
     }
   }
 
@@ -84,13 +114,21 @@ class ReviewsService {
     if (reviews.isEmpty) {
       throw CouldFindReview();
     } else {
-      return DatabaseReview.fromRow(reviews.first);
+      final review = DatabaseReview.fromRow(reviews.first);
+      _reviews.removeWhere((review) => review.id == id);
+      _reviews.add(review);
+      _reviewsStreamController.add(_reviews);
+      return review;
     }
   }
 
   Future<int> deleteAllReviews() async {
     final db = _getDatabaseOrThrow();
-    return await db.delete(reviewTable);
+    final numberOfDeletions = await db.delete(reviewTable);
+    _reviews = [];
+    _reviewsStreamController.add(_reviews);
+
+    return numberOfDeletions;
   }
 
   Future<void> deleteReview({required int id}) async {
@@ -102,6 +140,12 @@ class ReviewsService {
     );
     if (deletedCount == 0) {
       throw CouldNotDeleteReview();
+    } else {
+      final countBefore = _reviews.length;
+      _reviews.removeWhere((review) => review.id == id);
+      if (_reviews.length != countBefore) {
+        _reviewsStreamController.add(_reviews);
+      }
     }
   }
 
@@ -139,6 +183,9 @@ class ReviewsService {
       remarks: remarks,
       totalRate: totalRate,
     );
+
+    _reviews.add(review);
+    _reviewsStreamController.add(_reviews);
 
     return review;
   }
@@ -224,6 +271,8 @@ class ReviewsService {
       await db.execute(createUserTable);
       //create review table
       await db.execute(createReviewTable);
+
+      await _cacheReviews();
     } on MissingPlatformDirectoryException {
       throw UnableToGetDocumentDirectory;
     }
