@@ -46,13 +46,22 @@ class ReviewsService {
 
   List<DatabaseReview> _reviews = [];
   //singleton
-  ReviewsService._sharedInstance();
+
   static final ReviewsService _shared = ReviewsService._sharedInstance();
+  ReviewsService._sharedInstance() {
+    _reviewsStreamController = StreamController<List<DatabaseReview>>.broadcast(
+      //The onListen callback is provided, which is invoked when
+      // a listener subscribes to the stream.
+      // In this case, it immediately adds the existing _reviews to the stream's sink.
+      onListen: () {
+        _reviewsStreamController.sink.add(_reviews);
+      },
+    );
+  }
   factory ReviewsService() => _shared;
   //////
 
-  final _reviewsStreamController =
-      StreamController<List<DatabaseReview>>.broadcast();
+  late final StreamController<List<DatabaseReview>> _reviewsStreamController;
 
   Stream<List<DatabaseReview>> get allReviews =>
       _reviewsStreamController.stream;
