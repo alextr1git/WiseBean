@@ -29,24 +29,33 @@ const createUserTable = '''
 
 const createReviewTable = '''
   CREATE TABLE IF NOT EXISTS "review" (
-    "id"	INTEGER NOT NULL,
-    "user_id"	INTEGER NOT NULL,
-    "balance"	INTEGER NOT NULL,
-    "enjoyment"	INTEGER NOT NULL,
-    "description_correctness"	INTEGER NOT NULL,
-    "remarks"	TEXT,
-    "total_rate"	INTEGER NOT NULL,
-    PRIMARY KEY("id" AUTOINCREMENT),
-    FOREIGN KEY("user_id") REFERENCES "user"("id")
-  );''';
+	"id"	INTEGER NOT NULL,
+	"user_id"	INTEGER NOT NULL,
+	"balance"	REAL NOT NULL,
+	"enjoyment"	REAL NOT NULL,
+	"description_correctness"	REAL NOT NULL,
+	"remarks"	TEXT,
+	"total_rate"	REAL NOT NULL,
+	PRIMARY KEY("id" AUTOINCREMENT),
+	FOREIGN KEY("user_id") REFERENCES "user"("id")
+);
+''';
 
 class ReviewsService {
   Database? _db;
 
   List<DatabaseReview> _reviews = [];
+  //singleton
+  ReviewsService._sharedInstance();
+  static final ReviewsService _shared = ReviewsService._sharedInstance();
+  factory ReviewsService() => _shared;
+  //////
 
   final _reviewsStreamController =
       StreamController<List<DatabaseReview>>.broadcast();
+
+  Stream<List<DatabaseReview>> get allReviews =>
+      _reviewsStreamController.stream;
 
   Future<DatabaseUser> getOrCreateUser({required String email}) async {
     try {
@@ -69,11 +78,12 @@ class ReviewsService {
   Future<DatabaseReview> updateReview({
     required DatabaseReview review,
     required String remarks,
-    required int balance,
-    required int enjoyment,
-    required int descriptionCorrectness,
-    required int totalRate,
+    required double balance,
+    required double enjoyment,
+    required double descriptionCorrectness,
+    required double totalRate,
   }) async {
+    await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     await getReview(id: review.id);
     //update db
@@ -97,12 +107,14 @@ class ReviewsService {
   }
 
   Future<Iterable<DatabaseReview>> getAllReviews() async {
+    await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final reviews = await db.query(reviewTable);
     return reviews.map((reviewRow) => DatabaseReview.fromRow(reviewRow));
   }
 
   Future<DatabaseReview> getReview({required int id}) async {
+    await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final reviews = await db.query(
       reviewTable,
@@ -123,6 +135,7 @@ class ReviewsService {
   }
 
   Future<int> deleteAllReviews() async {
+    await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final numberOfDeletions = await db.delete(reviewTable);
     _reviews = [];
@@ -132,6 +145,7 @@ class ReviewsService {
   }
 
   Future<void> deleteReview({required int id}) async {
+    await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final deletedCount = await db.delete(
       reviewTable,
@@ -149,7 +163,15 @@ class ReviewsService {
     }
   }
 
-  Future<DatabaseReview> createReview({required DatabaseUser owner}) async {
+  Future<DatabaseReview> createReview({
+    required DatabaseUser owner,
+    required String remarks,
+    required double balance,
+    required double enjoyment,
+    required double descriptionCorrectness,
+    required double totalRate,
+  }) async {
+    await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
 
     //make sure owner exists in the database with correct id
@@ -157,12 +179,6 @@ class ReviewsService {
     if (dbUser != owner) {
       throw CouldNotFindUser();
     }
-
-    const remarks = '';
-    const balance = 8;
-    const enjoyment = 8;
-    const descriptionCorrectness = 8;
-    const totalRate = 8;
 
     //create the review
     final reviewId = await db.insert(reviewTable, {
@@ -191,6 +207,7 @@ class ReviewsService {
   }
 
   Future<DatabaseUser> getUser({required String email}) async {
+    await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final results = await db.query(
       userTable,
@@ -207,6 +224,7 @@ class ReviewsService {
   }
 
   Future<DatabaseUser> createUser({required String email}) async {
+    await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final results = await db.query(
       userTable,
@@ -228,6 +246,7 @@ class ReviewsService {
   }
 
   Future<void> deleteUser({required String email}) async {
+    await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final deletedCount = await db.delete(
       userTable,
@@ -255,6 +274,14 @@ class ReviewsService {
     } else {
       await db.close();
       _db = null;
+    }
+  }
+
+  Future<void> _ensureDbIsOpen() async {
+    try {
+      await open();
+    } on DatabaseAlreadyOpenException {
+      //empty
     }
   }
 
@@ -306,11 +333,11 @@ class DatabaseUser {
 class DatabaseReview {
   final int id;
   final int userId;
-  final int balance;
-  final int enjoyment;
-  final int descriptionCorrectness;
+  final double balance;
+  final double enjoyment;
+  final double descriptionCorrectness;
   final String remarks;
-  final int totalRate;
+  final double totalRate;
 
   DatabaseReview({
     required this.id,
@@ -325,11 +352,11 @@ class DatabaseReview {
   DatabaseReview.fromRow(Map<String, Object?> map)
       : id = map[idColumn] as int,
         userId = map[userIdColumn] as int,
-        balance = map[balanceColumn] as int,
-        enjoyment = map[enjoymentColumn] as int,
-        descriptionCorrectness = map[descriptionCorrectnessColumn] as int,
+        balance = map[balanceColumn] as double,
+        enjoyment = map[enjoymentColumn] as double,
+        descriptionCorrectness = map[descriptionCorrectnessColumn] as double,
         remarks = map[remarksColumn] as String,
-        totalRate = map[totalRateColumn] as int;
+        totalRate = map[totalRateColumn] as double;
 
   @override
   String toString() =>

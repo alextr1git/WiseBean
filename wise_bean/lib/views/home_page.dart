@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wise_bean/services/auth/auth_service.dart';
 import 'package:wise_bean/views/login_view.dart';
-import 'package:wise_bean/views/reviews_view.dart';
+import 'package:wise_bean/views/reviews/reviews_view.dart';
 import 'package:wise_bean/views/verify_email_view.dart';
 
 class HomePage extends StatefulWidget {
