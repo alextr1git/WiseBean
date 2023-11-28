@@ -30,8 +30,6 @@ class _CreateUpdateReviewViewState extends State<CreateUpdateReviewView> {
     7: 5.0,
   };
 
-
-
   Future<DatabaseReview> createOrGetExistingReview(BuildContext context) async {
     final widgetReview = context.getArgument<DatabaseReview>();
 
@@ -42,7 +40,8 @@ class _CreateUpdateReviewViewState extends State<CreateUpdateReviewView> {
       _descriptionCorrectness =
           convertToSliderValue(widgetReview.descriptionCorrectness);
       _enjoymnet = convertToSliderValue(widgetReview.enjoyment);
-      _totalRate = convertToSliderValue(widgetReview.totalRate);
+      _totalRate = widgetReview.totalRate;
+
       return widgetReview;
     }
 
@@ -83,147 +82,162 @@ class _CreateUpdateReviewViewState extends State<CreateUpdateReviewView> {
       appBar: AppBar(
         title: const Text('New review'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          children: [
-            const Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [Text('Rate the correcteness of description')]),
-            Slider(
-              value: _balance,
-              onChanged: (newBalance) {
-                setState(() {
-                  _balance = newBalance;
-                  recalculateTotalRate();
-                });
-              },
-              divisions: 7,
-              label: _sliderValuesRange[_balance.round()].toString(),
-              min: 0,
-              max: 7,
-            ),
-            if (_balance == 0)
-              const Text('Unbalanced as fuck')
-            else if (_balance == 1)
-              const Text('Very unbalanced')
-            else if (_balance == 2)
-              const Text('Medium balanced')
-            else if (_balance == 3)
-              const Text('Pretty balanced')
-            else if (_balance == 4)
-              const Text('Really balanced')
-            else if (_balance == 5)
-              const Text('Amazingly balanced')
-            else if (_balance == 6)
-              const Text('Almost perfectly balanced')
-            else if (_balance == 7)
-              const Text('Absolute piece of art in balance')
-            else
-              Text("$_balance"),
-            const SizedBox(
-              height: 20,
-            ),
-            const Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [Text('Rate the correcteness of description')]),
-            Slider(
-              value: _descriptionCorrectness,
-              onChanged: (newDescriptionCorrectness) {
-                setState(() {
-                  _descriptionCorrectness = newDescriptionCorrectness;
-                  recalculateTotalRate();
-                });
-              },
-              divisions: 7,
-              label: _sliderValuesRange[_descriptionCorrectness.round()]
-                  .toString(),
-              min: 0,
-              max: 7,
-            ),
-            if (_descriptionCorrectness == 0)
-              const Text('They say black is white')
-            else if (_descriptionCorrectness == 1)
-              const Text('Not even close')
-            else if (_descriptionCorrectness == 2)
-              const Text('Only few mathches')
-            else if (_descriptionCorrectness == 3)
-              const Text('Seems to be ')
-            else if (_descriptionCorrectness == 4)
-              const Text('Pretty close')
-            else if (_descriptionCorrectness == 5)
-              const Text('Amazingly close')
-            else if (_descriptionCorrectness == 6)
-              const Text('Almost everything feels perfect')
-            else if (_descriptionCorrectness == 7)
-              const Text('Every descriptor is feeled perfectly')
-            else
-              Text("$_descriptionCorrectness"),
-            const SizedBox(
-              height: 20,
-            ),
-            const Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [Text('Rate your enjoyment')]),
-            Slider(
-              value: _enjoymnet,
-              onChanged: (newEnjoyment) {
-                setState(() {
-                  _enjoymnet = newEnjoyment;
-                  recalculateTotalRate();
-                });
-              },
-              divisions: 7,
-              label: _sliderValuesRange[_enjoymnet.round()].toString(),
-              min: 0,
-              max: 7,
-            ),
-            if (_enjoymnet == 0)
-              const Text('I hate it!')
-            else if (_enjoymnet == 1)
-              const Text('I do not like it!')
-            else if (_enjoymnet == 2)
-              const Text('Ahh, average!')
-            else if (_enjoymnet == 3)
-              const Text('It was a pleasure!')
-            else if (_enjoymnet == 4)
-              const Text('It was amazing!')
-            else if (_enjoymnet == 5)
-              const Text('It was a bit more than amazing')
-            else if (_enjoymnet == 6)
-              const Text('Almost perfect!')
-            else if (_enjoymnet == 7)
-              const Text('Totally perfect!')
-            else
-              Text("$_enjoymnet"),
-            const SizedBox(
-              height: 20,
-            ),
-            Text(
-              "Total rating is $_totalRate",
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            TextField(
-              controller: _remarksTextController,
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-              decoration:
-                  const InputDecoration(hintText: 'Type your remarks here...'),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            ElevatedButton(
-                onPressed: () async {
-                  await createOrGetExistingReview(context);
-                },
-                child: const Text('Save review'))
-          ],
-        ),
-      ),
+      body: FutureBuilder(
+          future: createOrGetExistingReview(context),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                return Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    children: [
+                      const Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text('Rate the correcteness of description')
+                          ]),
+                      Slider(
+                        value: _balance,
+                        onChanged: (newBalance) {
+                          setState(() {
+                            _balance = newBalance;
+                            recalculateTotalRate();
+                          });
+                        },
+                        divisions: 7,
+                        label: _sliderValuesRange[_balance.round()].toString(),
+                        min: 0,
+                        max: 7,
+                      ),
+                      if (_balance == 0)
+                        const Text('Unbalanced as fuck')
+                      else if (_balance == 1)
+                        const Text('Very unbalanced')
+                      else if (_balance == 2)
+                        const Text('Medium balanced')
+                      else if (_balance == 3)
+                        const Text('Pretty balanced')
+                      else if (_balance == 4)
+                        const Text('Really balanced')
+                      else if (_balance == 5)
+                        const Text('Amazingly balanced')
+                      else if (_balance == 6)
+                        const Text('Almost perfectly balanced')
+                      else if (_balance == 7)
+                        const Text('Absolute piece of art in balance')
+                      else
+                        Text("$_balance"),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      const Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text('Rate the correcteness of description')
+                          ]),
+                      Slider(
+                        value: _descriptionCorrectness,
+                        onChanged: (newDescriptionCorrectness) {
+                          setState(() {
+                            _descriptionCorrectness = newDescriptionCorrectness;
+                            recalculateTotalRate();
+                          });
+                        },
+                        divisions: 7,
+                        label:
+                            _sliderValuesRange[_descriptionCorrectness.round()]
+                                .toString(),
+                        min: 0,
+                        max: 7,
+                      ),
+                      if (_descriptionCorrectness == 0)
+                        const Text('They say black is white')
+                      else if (_descriptionCorrectness == 1)
+                        const Text('Not even close')
+                      else if (_descriptionCorrectness == 2)
+                        const Text('Only few mathches')
+                      else if (_descriptionCorrectness == 3)
+                        const Text('Seems to be ')
+                      else if (_descriptionCorrectness == 4)
+                        const Text('Pretty close')
+                      else if (_descriptionCorrectness == 5)
+                        const Text('Amazingly close')
+                      else if (_descriptionCorrectness == 6)
+                        const Text('Almost everything feels perfect')
+                      else if (_descriptionCorrectness == 7)
+                        const Text('Every descriptor is feeled perfectly')
+                      else
+                        Text("$_descriptionCorrectness"),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      const Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [Text('Rate your enjoyment')]),
+                      Slider(
+                        value: _enjoymnet,
+                        onChanged: (newEnjoyment) {
+                          setState(() {
+                            _enjoymnet = newEnjoyment;
+                            recalculateTotalRate();
+                          });
+                        },
+                        divisions: 7,
+                        label:
+                            _sliderValuesRange[_enjoymnet.round()].toString(),
+                        min: 0,
+                        max: 7,
+                      ),
+                      if (_enjoymnet == 0)
+                        const Text('I hate it!')
+                      else if (_enjoymnet == 1)
+                        const Text('I do not like it!')
+                      else if (_enjoymnet == 2)
+                        const Text('Ahh, average!')
+                      else if (_enjoymnet == 3)
+                        const Text('It was a pleasure!')
+                      else if (_enjoymnet == 4)
+                        const Text('It was amazing!')
+                      else if (_enjoymnet == 5)
+                        const Text('It was a bit more than amazing')
+                      else if (_enjoymnet == 6)
+                        const Text('Almost perfect!')
+                      else if (_enjoymnet == 7)
+                        const Text('Totally perfect!')
+                      else
+                        Text("$_enjoymnet"),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        "Total rating is $_totalRate",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      TextField(
+                        controller: _remarksTextController,
+                        keyboardType: TextInputType.multiline,
+                        maxLines: null,
+                        decoration: const InputDecoration(
+                            hintText: 'Type your remarks here...'),
+                      ),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      ElevatedButton(
+                          onPressed: () async {
+                            await createOrGetExistingReview(context);
+                          },
+                          child: const Text('Save review'))
+                    ],
+                  ),
+                );
+              default:
+                return const CircularProgressIndicator();
+            }
+          }),
     );
   }
 
