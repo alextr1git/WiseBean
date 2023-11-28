@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 typedef DialogOptionBuilder<T> = Map<String, T?> Function();
+// This line defines a type alias DialogOptionBuilder
+// that represents a function taking no arguments
+// and returning a map where keys are strings (option titles)
+// and values are of type T or nullable (T?).
 Future<T?> showGenericDialog<T>({
   required BuildContext context,
   required String title,

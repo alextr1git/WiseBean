@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:wise_bean/services/crud/review_service.dart';
 import 'package:wise_bean/utilities/dialogs/delete_dialog.dart';
 
-typedef DeleteReviewCallback = void Function(DatabaseReview review);
+typedef ReviewCallback = void Function(DatabaseReview review);
 
 class ReviewsListView extends StatelessWidget {
   final List<DatabaseReview> reviews;
-  final DeleteReviewCallback onDeleteReview;
+  final ReviewCallback onDeleteReview;
+  final ReviewCallback onTap;
   const ReviewsListView({
     super.key,
     required this.reviews,
     required this.onDeleteReview,
+    required this.onTap,
   });
 
   @override
@@ -21,6 +23,9 @@ class ReviewsListView extends StatelessWidget {
         final review = reviews[index];
 
         return ListTile(
+          onTap: () {
+            onTap(review);
+          },
           title: Text(
             review.remarks,
             maxLines: 1,

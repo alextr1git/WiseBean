@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wise_bean/constants/routes.dart';
-import 'package:wise_bean/views/reviews/new_review_view.dart';
+import 'package:wise_bean/views/reviews/create_update_review_view.dart';
 import 'package:wise_bean/views/reviews/reviews_view.dart';
 import 'package:wise_bean/views/signup_view.dart';
 import 'package:wise_bean/views/home_page.dart';
@@ -18,7 +18,7 @@ void main() {
       signUpRoute: (context) => const SignUpView(),
       reviewsRoute: (context) => const ReviewsView(),
       verifyEmailRoute: (context) => const VerifyEmailView(),
-      newReviewRoute: (context) => const NewReviewView(),
+      createUpdateReviewRoute: (context) => const CreateUpdateReviewView(),
     },
     theme: ThemeData(
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),

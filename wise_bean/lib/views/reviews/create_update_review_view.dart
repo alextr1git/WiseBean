@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:wise_bean/services/auth/auth_service.dart';
 import 'package:wise_bean/services/crud/review_service.dart';
+import 'package:wise_bean/utilities/generics/get_arguments.dart';
 
-class NewReviewView extends StatefulWidget {
-  const NewReviewView({super.key});
+class CreateUpdateReviewView extends StatefulWidget {
+  const CreateUpdateReviewView({super.key});
 
   @override
-  State<NewReviewView> createState() => _NewReviewViewState();
+  State<CreateUpdateReviewView> createState() => _CreateUpdateReviewViewState();
 }
 
-class _NewReviewViewState extends State<NewReviewView> {
+class _CreateUpdateReviewViewState extends State<CreateUpdateReviewView> {
   DatabaseReview? _review;
   late final ReviewsService _reviewsService;
   late final TextEditingController _remarksTextController;
@@ -29,7 +30,22 @@ class _NewReviewViewState extends State<NewReviewView> {
     7: 5.0,
   };
 
-  Future<DatabaseReview> createNewReview() async {
+
+
+  Future<DatabaseReview> createOrGetExistingReview(BuildContext context) async {
+    final widgetReview = context.getArgument<DatabaseReview>();
+
+    if (widgetReview != null) {
+      _review = widgetReview;
+      _remarksTextController.text = widgetReview.remarks;
+      _balance = convertToSliderValue(widgetReview.balance);
+      _descriptionCorrectness =
+          convertToSliderValue(widgetReview.descriptionCorrectness);
+      _enjoymnet = convertToSliderValue(widgetReview.enjoyment);
+      _totalRate = convertToSliderValue(widgetReview.totalRate);
+      return widgetReview;
+    }
+
     final existingReview = _review;
     if (existingReview != null) {
       return existingReview;
@@ -37,13 +53,15 @@ class _NewReviewViewState extends State<NewReviewView> {
     final currentUser = AuthService.firebase().currentUser!;
     final email = currentUser.email!;
     final owner = await _reviewsService.getUser(email: email);
-    return await _reviewsService.createReview(
+    final newReview = await _reviewsService.createReview(
         balance: _balance,
         descriptionCorrectness: _descriptionCorrectness,
         totalRate: _totalRate,
         enjoyment: _enjoymnet,
         remarks: _remarksTextController.text,
         owner: owner);
+    _review = newReview;
+    return newReview;
   }
 
   @override
@@ -200,7 +218,7 @@ class _NewReviewViewState extends State<NewReviewView> {
             ),
             ElevatedButton(
                 onPressed: () async {
-                  await createNewReview();
+                  await createOrGetExistingReview(context);
                 },
                 child: const Text('Save review'))
           ],
@@ -211,6 +229,10 @@ class _NewReviewViewState extends State<NewReviewView> {
 
   double convertToRealValue(double fakeValue) {
     return _matchMap[fakeValue] ?? 3.0;
+  }
+
+  double convertToSliderValue(double realValue) {
+    return _matchMap.keys.firstWhere((k) => _matchMap[k] == realValue);
   }
 
   void recalculateTotalRate() {

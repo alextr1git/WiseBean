@@ -32,7 +32,7 @@ class _ReviewsViewState extends State<ReviewsView> {
           actions: [
             IconButton(
                 onPressed: () {
-                  Navigator.of(context).pushNamed(newReviewRoute);
+                  Navigator.of(context).pushNamed(createUpdateReviewRoute);
                 },
                 icon: const Icon(Icons.add)),
             PopupMenuButton<MenuAction>(onSelected: (value) async {
@@ -75,6 +75,12 @@ class _ReviewsViewState extends State<ReviewsView> {
                             reviews: allReviews,
                             onDeleteReview: (review) async {
                               await _reviewsService.deleteReview(id: review.id);
+                            },
+                            onTap: (review) {
+                              Navigator.of(context).pushNamed(
+                                createUpdateReviewRoute,
+                                arguments: review,
+                              );
                             },
                           );
                         } else {

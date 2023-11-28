@@ -45,8 +45,8 @@ class ReviewsService {
   Database? _db;
 
   List<DatabaseReview> _reviews = [];
+  
   //singleton
-
   static final ReviewsService _shared = ReviewsService._sharedInstance();
   ReviewsService._sharedInstance() {
     _reviewsStreamController = StreamController<List<DatabaseReview>>.broadcast(

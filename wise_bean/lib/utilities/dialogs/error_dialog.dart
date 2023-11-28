@@ -7,8 +7,7 @@ Future<void> showErrorDialog(BuildContext context, String text) {
     title: "Something went wrong",
     content: text,
     optionsBuilder: () => {
-      'OK' : null,
-
+      'OK': null,
     },
   );
 }
