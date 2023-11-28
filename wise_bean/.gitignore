@@ -31,7 +31,9 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
-/ios/Runner
+
+# IOS
+/iOS/Runner/
 
 # Symbolication related
 app.*.symbols
