@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wise_bean/constants/routes.dart';
 import 'package:wise_bean/services/auth/auth_exceptions.dart';
 import 'package:wise_bean/services/auth/auth_service.dart';
-import 'package:wise_bean/utilities/show_error_dialog.dart';
+import 'package:wise_bean/utilities/dialogs/error_dialog.dart';
 
 class SignUpView extends StatefulWidget {
   const SignUpView({super.key});

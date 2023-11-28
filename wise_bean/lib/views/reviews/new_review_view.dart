@@ -37,7 +37,13 @@ class _NewReviewViewState extends State<NewReviewView> {
     final currentUser = AuthService.firebase().currentUser!;
     final email = currentUser.email!;
     final owner = await _reviewsService.getUser(email: email);
-    return await _reviewsService.createReview(balance: _balance,descriptionCorrectness: _descriptionCorrectness, totalRate: _totalRate, enjoyment: _enjoymnet, remarks: _remarksTextController.text, owner: owner);
+    return await _reviewsService.createReview(
+        balance: _balance,
+        descriptionCorrectness: _descriptionCorrectness,
+        totalRate: _totalRate,
+        enjoyment: _enjoymnet,
+        remarks: _remarksTextController.text,
+        owner: owner);
   }
 
   @override
@@ -63,7 +69,9 @@ class _NewReviewViewState extends State<NewReviewView> {
         padding: const EdgeInsets.all(10.0),
         child: Column(
           children: [
-            const Text('Rate the balance'),
+            const Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [Text('Rate the correcteness of description')]),
             Slider(
               value: _balance,
               onChanged: (newBalance) {
@@ -77,7 +85,30 @@ class _NewReviewViewState extends State<NewReviewView> {
               min: 0,
               max: 7,
             ),
-            const Text('Rate the correcteness of description'),
+            if (_balance == 0)
+              const Text('Unbalanced as fuck')
+            else if (_balance == 1)
+              const Text('Very unbalanced')
+            else if (_balance == 2)
+              const Text('Medium balanced')
+            else if (_balance == 3)
+              const Text('Pretty balanced')
+            else if (_balance == 4)
+              const Text('Really balanced')
+            else if (_balance == 5)
+              const Text('Amazingly balanced')
+            else if (_balance == 6)
+              const Text('Almost perfectly balanced')
+            else if (_balance == 7)
+              const Text('Absolute piece of art in balance')
+            else
+              Text("$_balance"),
+            const SizedBox(
+              height: 20,
+            ),
+            const Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [Text('Rate the correcteness of description')]),
             Slider(
               value: _descriptionCorrectness,
               onChanged: (newDescriptionCorrectness) {
@@ -92,7 +123,30 @@ class _NewReviewViewState extends State<NewReviewView> {
               min: 0,
               max: 7,
             ),
-            const Text('Rate your enjoyment'),
+            if (_descriptionCorrectness == 0)
+              const Text('They say black is white')
+            else if (_descriptionCorrectness == 1)
+              const Text('Not even close')
+            else if (_descriptionCorrectness == 2)
+              const Text('Only few mathches')
+            else if (_descriptionCorrectness == 3)
+              const Text('Seems to be ')
+            else if (_descriptionCorrectness == 4)
+              const Text('Pretty close')
+            else if (_descriptionCorrectness == 5)
+              const Text('Amazingly close')
+            else if (_descriptionCorrectness == 6)
+              const Text('Almost everything feels perfect')
+            else if (_descriptionCorrectness == 7)
+              const Text('Every descriptor is feeled perfectly')
+            else
+              Text("$_descriptionCorrectness"),
+            const SizedBox(
+              height: 20,
+            ),
+            const Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [Text('Rate your enjoyment')]),
             Slider(
               value: _enjoymnet,
               onChanged: (newEnjoyment) {
@@ -105,6 +159,27 @@ class _NewReviewViewState extends State<NewReviewView> {
               label: _sliderValuesRange[_enjoymnet.round()].toString(),
               min: 0,
               max: 7,
+            ),
+            if (_enjoymnet == 0)
+              const Text('I hate it!')
+            else if (_enjoymnet == 1)
+              const Text('I do not like it!')
+            else if (_enjoymnet == 2)
+              const Text('Ahh, average!')
+            else if (_enjoymnet == 3)
+              const Text('It was a pleasure!')
+            else if (_enjoymnet == 4)
+              const Text('It was amazing!')
+            else if (_enjoymnet == 5)
+              const Text('It was a bit more than amazing')
+            else if (_enjoymnet == 6)
+              const Text('Almost perfect!')
+            else if (_enjoymnet == 7)
+              const Text('Totally perfect!')
+            else
+              Text("$_enjoymnet"),
+            const SizedBox(
+              height: 20,
             ),
             Text(
               "Total rating is $_totalRate",

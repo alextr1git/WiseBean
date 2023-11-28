@@ -3,6 +3,8 @@ import 'package:wise_bean/constants/routes.dart';
 import 'package:wise_bean/enums/menu_action.dart';
 import 'package:wise_bean/services/auth/auth_service.dart';
 import 'package:wise_bean/services/crud/review_service.dart';
+import 'package:wise_bean/utilities/dialogs/logout_dialog.dart';
+import 'package:wise_bean/views/reviews/reviews_list_view.dart';
 
 class ReviewsView extends StatefulWidget {
   const ReviewsView({super.key});
@@ -69,19 +71,10 @@ class _ReviewsViewState extends State<ReviewsView> {
                         if (snapshot.hasData) {
                           final allReviews =
                               snapshot.data as List<DatabaseReview>;
-                          return ListView.builder(
-                            itemCount: allReviews.length,
-                            itemBuilder: (context, index) {
-                              final review = allReviews[index];
-
-                              return ListTile(
-                                title: Text(
-                                  review.remarks,
-                                  maxLines: 1,
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              );
+                          return ReviewsListView(
+                            reviews: allReviews,
+                            onDeleteReview: (review) async {
+                              await _reviewsService.deleteReview(id: review.id);
                             },
                           );
                         } else {
@@ -99,29 +92,4 @@ class _ReviewsViewState extends State<ReviewsView> {
           future: _reviewsService.getOrCreateUser(email: userEmail),
         ));
   }
-}
-
-Future<bool> showLogOutDialog(BuildContext context) {
-  return showDialog<bool>(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text("Sign out"),
-        content: const Text("Are you sure you want to sign out?"),
-        actions: [
-          TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('Cancel')),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Log out'),
-          )
-        ],
-      );
-    },
-  ).then((value) => value ?? false);
 }
