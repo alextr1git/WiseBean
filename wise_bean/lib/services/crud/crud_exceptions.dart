@@ -17,3 +17,4 @@ class CouldFindReview implements Exception {}
 class CouldNotUpdateReview implements Exception {}
 
 class UserShouldBeSetBeforeReadingAllReviews implements Exception {}
+

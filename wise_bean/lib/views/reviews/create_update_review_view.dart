@@ -52,7 +52,7 @@ class _CreateUpdateReviewViewState extends State<CreateUpdateReviewView> {
       return;
     }
     final currentUser = AuthService.firebase().currentUser!;
-    final email = currentUser.email!;
+    final email = currentUser.email;
     final owner = await _reviewsService.getUser(email: email);
     final newReview = await _reviewsService.createReview(
         balance: _balance,
@@ -85,37 +85,6 @@ class _CreateUpdateReviewViewState extends State<CreateUpdateReviewView> {
     }
     return false;
   }
-  // Future<DatabaseReview> createOrGetExistingReview(BuildContext context) async {
-  //   final existingReview = _review;
-  //   if (existingReview != null) {
-  //     return existingReview;
-  //   }
-  //   //_initialized = true;
-  //   final widgetReview = context.getArgument<DatabaseReview>();
-  //   if (widgetReview != null) {
-  //     _review = widgetReview;
-  //     _remarksTextController.text = widgetReview.remarks;
-  //     _balance = convertToSliderValue(widgetReview.balance);
-  //     _descriptionCorrectness =
-  //         convertToSliderValue(widgetReview.descriptionCorrectness);
-  //     _enjoymnet = convertToSliderValue(widgetReview.enjoyment);
-  //     _totalRate = widgetReview.totalRate;
-  //     return widgetReview;
-  //   }
-
-  //   final currentUser = AuthService.firebase().currentUser!;
-  //   final email = currentUser.email!;
-  //   final owner = await _reviewsService.getUser(email: email);
-  //   final newReview = await _reviewsService.createReview(
-  //       balance: _balance,
-  //       descriptionCorrectness: _descriptionCorrectness,
-  //       totalRate: _totalRate,
-  //       enjoyment: _enjoymnet,
-  //       remarks: _remarksTextController.text,
-  //       owner: owner);
-  //   _review = newReview;
-  //   return newReview;
-  // }
 
   @override
   void initState() {

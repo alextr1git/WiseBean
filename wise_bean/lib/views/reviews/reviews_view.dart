@@ -15,7 +15,7 @@ class ReviewsView extends StatefulWidget {
 
 class _ReviewsViewState extends State<ReviewsView> {
   late final ReviewsService _reviewsService;
-  String get userEmail => AuthService.firebase().currentUser!.email!;
+  String get userEmail => AuthService.firebase().currentUser!.email;
 
   @override
   void initState() {
@@ -96,7 +96,6 @@ class _ReviewsViewState extends State<ReviewsView> {
                 return const CircularProgressIndicator();
             }
           },
-          
         ));
   }
 }
