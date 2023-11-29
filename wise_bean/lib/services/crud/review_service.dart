@@ -45,7 +45,7 @@ class ReviewsService {
   Database? _db;
 
   List<DatabaseReview> _reviews = [];
-  
+
   //singleton
   static final ReviewsService _shared = ReviewsService._sharedInstance();
   ReviewsService._sharedInstance() {
@@ -96,13 +96,18 @@ class ReviewsService {
     final db = _getDatabaseOrThrow();
     await getReview(id: review.id);
     //update db
-    final updatesCount = await db.update(reviewTable, {
-      remarksColumn: remarks,
-      balanceColumn: balance,
-      enjoymentColumn: enjoyment,
-      descriptionCorrectnessColumn: descriptionCorrectness,
-      totalRateColumn: totalRate,
-    });
+    final updatesCount = await db.update(
+      reviewTable,
+      {
+        remarksColumn: remarks,
+        balanceColumn: balance,
+        enjoymentColumn: enjoyment,
+        descriptionCorrectnessColumn: descriptionCorrectness,
+        totalRateColumn: totalRate,
+      },
+      where: 'id = ?',
+      whereArgs: [review.id],
+    );
 
     if (updatesCount == 0) {
       throw CouldNotUpdateReview();

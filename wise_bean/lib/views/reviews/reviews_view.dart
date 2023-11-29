@@ -58,6 +58,7 @@ class _ReviewsViewState extends State<ReviewsView> {
           ],
         ),
         body: FutureBuilder(
+          future: _reviewsService.getOrCreateUser(email: userEmail),
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.done:
@@ -95,7 +96,7 @@ class _ReviewsViewState extends State<ReviewsView> {
                 return const CircularProgressIndicator();
             }
           },
-          future: _reviewsService.getOrCreateUser(email: userEmail),
+          
         ));
   }
 }
