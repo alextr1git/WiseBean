@@ -113,7 +113,7 @@ class ReviewsService {
       throw CouldNotUpdateReview();
     } else {
       final updatedReview = await getReview(id: review.id);
-      _reviews.removeWhere((review) => review.id == updatedReview);
+      _reviews.removeWhere((review) => review.id == updatedReview.id);
       _reviews.add(updatedReview);
       _reviewsStreamController.add(_reviews);
       return updatedReview;
