@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;
+import 'package:wise_bean/extensions/list/filter.dart';
 import 'package:wise_bean/services/crud/crud_exceptions.dart';
 
 const dbName = 'reviews.db';
@@ -46,6 +47,8 @@ class ReviewsService {
 
   List<DatabaseReview> _reviews = [];
 
+  DatabaseUser? _user;
+
   //singleton
   static final ReviewsService _shared = ReviewsService._sharedInstance();
   ReviewsService._sharedInstance() {
@@ -64,14 +67,28 @@ class ReviewsService {
   late final StreamController<List<DatabaseReview>> _reviewsStreamController;
 
   Stream<List<DatabaseReview>> get allReviews =>
-      _reviewsStreamController.stream;
+      _reviewsStreamController.stream.filter((review) {
+        final currentUser = _user;
+        if (currentUser != null) {
+          return review.userId == currentUser.id; //bool
+        } else {
+          throw UserShouldBeSetBeforeReadingAllReviews();
+        }
+      });
 
-  Future<DatabaseUser> getOrCreateUser({required String email}) async {
+  Future<DatabaseUser> getOrCreateUser(
+      {required String email, bool setAsCurrentUser = true}) async {
     try {
       final user = await getUser(email: email);
+      if (setAsCurrentUser) {
+        _user = user;
+      }
       return user;
     } on CouldNotFindUser {
       final createdUser = await createUser(email: email);
+      if (setAsCurrentUser) {
+        _user = createdUser;
+      }
       return createdUser;
     } catch (e) {
       rethrow;
